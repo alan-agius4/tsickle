@@ -104,6 +104,32 @@ describe('emitWithTsickle', () => {
     expect(jsSources['b.js']).toContain(`export { Foo } from './a';`);
   });
 
+  it('should emit valid JSON when resolveJsonModule is true', () => {
+    const tsSources = {
+      'a.ts': `
+        import x from './b.json';
+        export { x };
+      `,
+      'b.json': '{"foo": "bar"}',
+    };
+
+    const tmp = path.join(process.cwd(), '.tmp');
+
+    const jsSources = emitWithTsickle(
+        tsSources, {
+          moduleResolution: ts.ModuleResolutionKind.NodeJs,
+          module: ts.ModuleKind.ES2015,
+          resolveJsonModule: true,
+          outDir: tmp,
+          esModuleInterop: true,
+          allowSyntheticDefaultImports: true,
+        },
+        {es5Mode: false, googmodule: false});
+
+    const jsonContent = JSON.parse(jsSources['.tmp/b.json']);
+    expect(jsonContent.foo).toBe('bar');
+  });
+
   describe('regressions', () => {
     it('should produce correct .d.ts files when expanding `export *` with es2015 module syntax',
        () => {

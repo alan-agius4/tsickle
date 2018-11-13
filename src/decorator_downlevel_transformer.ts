@@ -30,6 +30,7 @@
 import {getDecoratorDeclarations} from './decorators';
 import {getAllLeadingComments, visitEachChild} from './transformer_util';
 import * as ts from './typescript';
+import { runTransformer } from './run_transformer';
 
 /**
  * Returns true if the given decorator should be downleveled.
@@ -591,6 +592,6 @@ export function decoratorDownlevelTransformer(
       }
     }
 
-    return (sf: ts.SourceFile) => visitor(sf) as ts.SourceFile;
+    return (sf: ts.SourceFile) => runTransformer(sf, visitor);
   };
 }

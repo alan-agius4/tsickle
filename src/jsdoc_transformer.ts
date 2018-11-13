@@ -34,6 +34,7 @@ import {ModuleTypeTranslator} from './module_type_translator';
 import * as transformerUtil from './transformer_util';
 import {isValidClosurePropertyName} from './type_translator';
 import * as ts from './typescript';
+import { runTransformer } from './run_transformer';
 
 /** AnnotatorHost contains host properties for the JSDoc-annotation process. */
 export interface AnnotatorHost {
@@ -426,7 +427,7 @@ export function removeTypeAssertions(): ts.TransformerFactory<ts.SourceFile> {
         return ts.visitEachChild(node, visitor, context);
       }
 
-      return visitor(sourceFile) as ts.SourceFile;
+      return runTransformer(sourceFile, visitor);
     };
   };
 }
@@ -440,7 +441,7 @@ export function jsdocTransformer(
     typeChecker: ts.TypeChecker, diagnostics: ts.Diagnostic[]):
     (context: ts.TransformationContext) => ts.Transformer<ts.SourceFile> {
   return (context: ts.TransformationContext): ts.Transformer<ts.SourceFile> => {
-    return (sourceFile: ts.SourceFile) => {
+    const visitor = (sourceFile: ts.SourceFile) => {
       const moduleTypeTranslator = new ModuleTypeTranslator(
           sourceFile, typeChecker, host, diagnostics, /*isForExterns*/ false);
       /**
@@ -989,5 +990,7 @@ export function jsdocTransformer(
 
       return moduleTypeTranslator.insertForwardDeclares(sourceFile);
     };
+
+    return (sf: ts.SourceFile) => runTransformer(sf, visitor);
   };
 }

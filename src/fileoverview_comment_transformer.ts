@@ -9,6 +9,7 @@
 import * as jsdoc from './jsdoc';
 import {createNotEmittedStatement, reportDiagnostic, synthesizeCommentRanges, updateSourceFileNode} from './transformer_util';
 import * as ts from './typescript';
+import { runTransformer } from './run_transformer';
 
 /**
  * A set of JSDoc tags that mark a comment as a fileoverview comment. These are recognized by other
@@ -79,7 +80,7 @@ export function transformFileoverviewCommentFactory(diagnostics: ts.Diagnostic[]
       }
     }
 
-    return (sourceFile: ts.SourceFile) => {
+    const visitor = (sourceFile: ts.SourceFile) => {
       const text = sourceFile.getFullText();
 
       let fileComments: ts.SynthesizedComment[] = [];
@@ -164,6 +165,8 @@ export function transformFileoverviewCommentFactory(diagnostics: ts.Diagnostic[]
       // sf does not need to be updated, synthesized comments are mutable.
       return sourceFile;
     };
+
+    return (sf: ts.SourceFile) => runTransformer(sf, visitor);
   };
 }
 

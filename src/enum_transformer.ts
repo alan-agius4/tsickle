@@ -23,6 +23,7 @@ import * as ts from 'typescript';
 
 import {isAmbient} from './jsdoc_transformer';
 import {createSingleQuoteStringLiteral, getIdentifierText, hasModifierFlag} from './transformer_util';
+import { runTransformer } from './run_transformer';
 
 /** isInNamespace returns true if any of node's ancestors is a namespace (ModuleDeclaration). */
 function isInNamespace(node: ts.Node) {
@@ -209,6 +210,6 @@ export function enumTransformer(typeChecker: ts.TypeChecker, diagnostics: ts.Dia
       return resultNodes;
     }
 
-    return (sf: ts.SourceFile) => visitor(sf) as ts.SourceFile;
+    return (sf: ts.SourceFile) => runTransformer(sf, visitor);
   };
 }

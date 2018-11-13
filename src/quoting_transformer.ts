@@ -10,6 +10,7 @@ import {AnnotatorHost} from './jsdoc_transformer';
 import {createSingleQuoteStringLiteral, reportDebugWarning} from './transformer_util';
 import {isValidClosurePropertyName} from './type_translator';
 import * as ts from './typescript';
+import { runTransformer } from './run_transformer';
 
 /**
  * quotingTransformer warns on quoted accesses to declared properties, and converts dotted property
@@ -88,8 +89,9 @@ export function quotingTransformer(
         default:
           break;
       }
-      return ts.visitEachChild(node, visitor, context);
+      return ts.visitEachChild(node, visitor);
     }
-    return (sourceFile: ts.SourceFile) => ts.visitEachChild(sourceFile, visitor, context);
+
+    return (sourceFile: ts.SourceFile) => runTransformer(sourceFile, visitor);
   };
 }
